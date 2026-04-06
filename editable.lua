@@ -1,11 +1,17 @@
+local fmico = "icon16/%s.png"
+local nvico = "accept"
+local wpkey = "__editableOrderInfo"
+
+ENT[wpkey] = {N = 0, T = {}}
+
 --[[
  * Retrieves entity order settings for the given key
  * ent > Entity to register as primary laser source
 ]]
-local function editableGetOrderID(ent, key)
+local function editableGetOrder(ent, key)
   if(not key) then return end
   if(not IsValid(ent)) then return end
-  local info = ent.meOrderInfo; if(not info) then return end
+  local info = ent[wpkey]; if(not info) then return end
   local itab = info.T; if(itab[key]) then
     itab[key] = (itab[key] + 1) else itab[key] = 0 end
   info.N = (info.N + 1); return key, info.N, itab[key]
@@ -16,7 +22,7 @@ end
  * tab > Reference to a table of row tables (list.Get)
  * key > The key to be extracted (not mandatory)
 ]]
-local function editableExtractCon(tab, key)
+local function editableExtractData(tab, key)
   if(not tab) then return tab end
   if(not key) then return tab end
   local set = {} -- Allocate
@@ -27,9 +33,8 @@ end
 
 -- https://wiki.facepunch.com/gmod/Silkicons
 -- https://heyter.github.io/js-famfamfam-search/
-local fmico = "icon16/%s.png"
 local function editableGetIcon(icon)
-  return fmico:format(tostring(icon or "accept"))
+  return fmico:format(tostring(icon or nvico))
 end
 
 --[[
@@ -41,7 +46,7 @@ end
  *   [key]  : Generate icons from row[key]
  * dir > Enable direct table mapping
 ]]
-local function editableExtractIco(tab, key)
+local function editableExtractIcon(tab, key)
   if(not tab) then return end
   if(not key) then return end
   if(istable(key)) then
@@ -49,8 +54,13 @@ local function editableExtractIco(tab, key)
       key[k] = editableGetIcon(v)
     end; return key
   else
-    if(key:sub(1, 1) == "#") then
-      return editableGetIcon(key:sub(2, -1))
+    if(tostring(key):sub(1, 1) == "#") then
+      local set = {} -- Allocate and substitute
+      local dir = tostring(key):sub(2, -1)
+      local con = (dir:len() > 0 and dir or nvico)
+      local ico = editableGetIcon(con)
+      for k, row in pairs(tab) do set[k] = ico end
+      return set -- Key-value pairs
     else
       local set = {} -- Allocate
       for k, row in pairs(tab) do -- Populate values
@@ -60,10 +70,8 @@ local function editableExtractIco(tab, key)
   end
 end
 
-ENT.meOrderInfo = {N = 0, T = {}}
-
 function ENT:EditableSetVector(name, catg)
-  local typ, ord, id = editableGetOrderID(self, "Vector")
+  local typ, ord, id = editableGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -74,7 +82,7 @@ function ENT:EditableSetVector(name, catg)
 end
 
 function ENT:EditableSetVectorColor(name, catg)
-  local typ, ord, id = editableGetOrderID(self, "Vector")
+  local typ, ord, id = editableGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -85,7 +93,7 @@ function ENT:EditableSetVectorColor(name, catg)
 end
 
 function ENT:EditableSetBool(name, catg)
-  local typ, ord, id = editableGetOrderID(self, "Bool")
+  local typ, ord, id = editableGetOrder(self, "Bool")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -96,7 +104,7 @@ function ENT:EditableSetBool(name, catg)
 end
 
 function ENT:EditableSetFloat(name, catg, min, max)
-  local typ, ord, id = editableGetOrderID(self, "Float")
+  local typ, ord, id = editableGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -109,9 +117,9 @@ function ENT:EditableSetFloat(name, catg, min, max)
 end
 
 function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek)
-  local vas = editableExtractCon(vals, key) -- Use provided
-  local vco = editableExtractIco(vals, ico)
-  local typ, ord, id = editableGetOrderID(self, "Float")
+  local vas = editableExtractData(vals, key) -- Use provided
+  local vco = editableExtractIcon(vals, ico)
+  local typ, ord, id = editableGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -125,7 +133,7 @@ function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek)
 end
 
 function ENT:EditableSetInt(name, catg, min, max)
-  local typ, ord, id = editableGetOrderID(self, "Int")
+  local typ, ord, id = editableGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -138,9 +146,9 @@ function ENT:EditableSetInt(name, catg, min, max)
 end
 
 function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek)
-  local vas = editableExtractCon(vals, key) -- Use provided
-  local vco = editableExtractIco(vals, ico)
-  local typ, ord, id = editableGetOrderID(self, "Int")
+  local vas = editableExtractData(vals, key) -- Use provided
+  local vco = editableExtractIcon(vals, ico)
+  local typ, ord, id = editableGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -154,7 +162,7 @@ function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek)
 end
 
 function ENT:EditableSetStringGeneric(name, catg, enter)
-  local typ, ord, id = editableGetOrderID(self, "String")
+  local typ, ord, id = editableGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -166,9 +174,9 @@ function ENT:EditableSetStringGeneric(name, catg, enter)
 end
 
 function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek)
-  local vas = editableExtractCon(vals, key) -- Use provided
-  local vco = editableExtractIco(vals, ico)
-  local typ, ord, id = editableGetOrderID(self, "String")
+  local vas = editableExtractData(vals, key) -- Use provided
+  local vco = editableExtractIcon(vals, ico)
+  local typ, ord, id = editableGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -179,4 +187,8 @@ function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek)
       icons    = vco,
       values   = vas
   }}); return self
+end
+
+function ENT:EditableRemoveOrder()
+  self[wpkey] = nil; return self
 end
