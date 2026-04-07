@@ -8,6 +8,12 @@ as a [submodule][ref-subm] for every tool written. It is updated for every repo 
 Generally, because I am lazy. This way the wrapper will get updated for every
 addon that uses it. Otherwise, I have to update each addon individually.
 
+### How is it better
+1. Wire [port direction can be configured using matrixes][ref-wire-conf] instead of long senseless arrays
+2. You can [override numpad using a wire port when connected][ref-wire-novr] `local w = self:WireRead("Width", true)`
+3. Dedicated connection, info, configuration and other already implemented methods/routines with type check
+4. Wrapping the [editable SENTs routines with no senseless tables passed down as arguments][ref-edit-pass]. Indexing is automatic
+
 ### Ho to use
 1. In your `/lua` folder create a folder matching your addon name
   * This is done because you can make your files unique
@@ -25,12 +31,21 @@ addon that uses it. Otherwise, I have to update each addon individually.
 ### Give me some folder structure examples
 |Name|Wrapper|
 |-|-|
-|[Laser STool][ref-s-laser]|[laseremitter][ref-w-laser]|
+|[LaserSTool][ref-s-laser]|[laseremitter][ref-w-laser]|
 |[PropCannonTool][ref-s-cannon]|[propcannon][ref-w-cannon]|
+|[HoverModule][ref-s-maglev]|Maglev SENT private repo|
 
+[![](https://img.youtube.com/vi/G_xcm1OFVV0/1.jpg)](http://www.youtube.com/watch?v=G_xcm1OFVV0 "")
+[![](https://img.youtube.com/vi/G_xcm1OFVV0/2.jpg)](http://www.youtube.com/watch?v=G_xcm1OFVV0 "")
+[![](https://img.youtube.com/vi/G_xcm1OFVV0/3.jpg)](http://www.youtube.com/watch?v=G_xcm1OFVV0 "")
+
+[ref-edit-pass]: https://github.com/dvdvideo1234/LaserSTool/blob/main/lua/autorun/laserlib.lua#L1168
+[ref-wire-novr]: https://github.com/dvdvideo1234/PropCannonTool/blob/master/lua/entities/gmod_propcannon/init.lua#L203
+[ref-wire-conf]: https://github.com/dvdvideo1234/LaserSTool/blob/main/lua/entities/gmod_laser/init.lua#L23
 [ref-subm]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [ref-wrap]: https://en.wikipedia.org/wiki/Wrapper_function
 [ref-s-laser]: https://github.com/dvdvideo1234/LaserSTool/tree/main
 [ref-w-laser]: https://github.com/dvdvideo1234/LaserSTool/tree/main/lua/laseremitter
 [ref-s-cannon]: https://github.com/dvdvideo1234/PropCannonTool
 [ref-w-cannon]: https://github.com/dvdvideo1234/PropCannonTool/tree/master/lua/propcannon
+[ref-s-maglev]: https://www.youtube.com/watch?v=G_xcm1OFVV0
