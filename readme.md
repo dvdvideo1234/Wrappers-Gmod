@@ -27,6 +27,10 @@ addon that uses it. Otherwise, I have to update each addon individually.
 5. To update the wrappers, you can update the sub-module:
   * `$ git submodule update --init --recursive`
   * This will update the hash to point to the latest revision
+6. To keep all the sub-modules updated to the head changes use:
+  * `$ git submodule foreach git pull origin main`
+  * This will automatically pull and update all changes made
+  * This will automatically update the hash in your pointer repo
 
 ### Give me some folder structure examples
 |Name|Wrapper|
