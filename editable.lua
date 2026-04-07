@@ -1,14 +1,21 @@
 local fmico = "icon16/%s.png"
 local nvico = "accept"
 local wpkey = "__editableOrderInfo"
+local wpfnc = function(v) return v end
 
 ENT[wpkey] = {N = 0, T = {}}
+
+-- https://wiki.facepunch.com/gmod/Silkicons
+-- https://heyter.github.io/js-famfamfam-search/
+local function wrapGetIcon(icon)
+  return fmico:format(tostring(icon or nvico))
+end
 
 --[[
  * Retrieves entity order settings for the given key
  * ent > Entity to register as primary laser source
 ]]
-local function editableGetOrder(ent, key)
+local function wrapGetOrder(ent, key)
   if(not key) then return end
   if(not IsValid(ent)) then return end
   local info = ent[wpkey]; if(not info) then return end
@@ -20,58 +27,31 @@ end
 --[[
  * Extracts table value content from 2D set specified key
  * tab > Reference to a table of row tables (list.Get)
- * key > The key to be extracted (not mandatory)
+ * idx > The key to be extracted (mandatory)
+ *   table  : Assign convert for all the values
+ *   direct : Direct translate 2:n from single
+ *   [key]  : Extract dedicated from row[idx]
+ * fnc > Conversion function. Defaults to `wpfnc`
 ]]
-local function editableExtractData(tab, key)
-  if(not tab) then return tab end
-  if(not key) then return tab end
-  local set = {} -- Allocate
-  for k, v in pairs(tab) do
-    set[k] = v[key] -- Populate values
+local function wrapConvert(tab, idx, fnc)
+  if(not tab) then return end
+  if(not idx) then return end
+  local set, fnc = {}, (fnc or wpfnc)
+  if(istable(idx)) then -- Index table
+    for k, v in pairs(idx) do set[k] = fnc(v) end
+  else -- The index is a value. Index table
+    if(tostring(idx):sub(1, 1) == "#") then
+      local r = tostring(idx):sub(2, -1)
+      local o = (r:len() > 0 and r or nil)
+      for k, v in pairs(tab) do set[k] = fnc(o) end
+    else
+      for k, v in pairs(tab) do set[k] = fnc(v[idx]) end
+    end
   end; return set -- Key-value pairs
 end
 
--- https://wiki.facepunch.com/gmod/Silkicons
--- https://heyter.github.io/js-famfamfam-search/
-local function editableGetIcon(icon)
-  return fmico:format(tostring(icon or nvico))
-end
-
---[[
- * Extracts table icons from set specified key
- * tab > Reference to a table of row tables
- * key > The key to be extracted
- *   table  : convert all the values to icons
- *   direct : Translate 2:n to icon
- *   [key]  : Generate icons from row[key]
- * dir > Enable direct table mapping
-]]
-local function editableExtractIcon(tab, key)
-  if(not tab) then return end
-  if(not key) then return end
-  if(istable(key)) then
-    for k, v in pairs(key) do
-      key[k] = editableGetIcon(v)
-    end; return key
-  else
-    if(tostring(key):sub(1, 1) == "#") then
-      local set = {} -- Allocate and substitute
-      local dir = tostring(key):sub(2, -1)
-      local con = (dir:len() > 0 and dir or nvico)
-      local ico = editableGetIcon(con)
-      for k, row in pairs(tab) do set[k] = ico end
-      return set -- Key-value pairs
-    else
-      local set = {} -- Allocate
-      for k, row in pairs(tab) do -- Populate values
-        set[k] = editableGetIcon(row[key])
-      end; return set -- Key-value pairs
-    end -- Update icon with key table or string
-  end
-end
-
 function ENT:EditableSetVector(name, catg)
-  local typ, ord, id = editableGetOrder(self, "Vector")
+  local typ, ord, id = wrapGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -82,7 +62,7 @@ function ENT:EditableSetVector(name, catg)
 end
 
 function ENT:EditableSetVectorColor(name, catg)
-  local typ, ord, id = editableGetOrder(self, "Vector")
+  local typ, ord, id = wrapGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -93,7 +73,7 @@ function ENT:EditableSetVectorColor(name, catg)
 end
 
 function ENT:EditableSetBool(name, catg)
-  local typ, ord, id = editableGetOrder(self, "Bool")
+  local typ, ord, id = wrapGetOrder(self, "Bool")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -104,7 +84,7 @@ function ENT:EditableSetBool(name, catg)
 end
 
 function ENT:EditableSetFloat(name, catg, min, max)
-  local typ, ord, id = editableGetOrder(self, "Float")
+  local typ, ord, id = wrapGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -117,9 +97,9 @@ function ENT:EditableSetFloat(name, catg, min, max)
 end
 
 function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek)
-  local vas = editableExtractData(vals, key) -- Use provided
-  local vco = editableExtractIcon(vals, ico)
-  local typ, ord, id = editableGetOrder(self, "Float")
+  local vas = wrapConvert(vals, key, tonumber) -- Use provided
+  local vco = wrapConvert(vals, ico, wrapGetIcon)
+  local typ, ord, id = wrapGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -133,7 +113,7 @@ function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek)
 end
 
 function ENT:EditableSetInt(name, catg, min, max)
-  local typ, ord, id = editableGetOrder(self, "Int")
+  local typ, ord, id = wrapGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -146,9 +126,9 @@ function ENT:EditableSetInt(name, catg, min, max)
 end
 
 function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek)
-  local vas = editableExtractData(vals, key) -- Use provided
-  local vco = editableExtractIcon(vals, ico)
-  local typ, ord, id = editableGetOrder(self, "Int")
+  local vas = wrapConvert(vals, key, tonumber) -- Use provided
+  local vco = wrapConvert(vals, ico, wrapGetIcon)
+  local typ, ord, id = wrapGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -162,7 +142,7 @@ function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek)
 end
 
 function ENT:EditableSetStringGeneric(name, catg, enter)
-  local typ, ord, id = editableGetOrder(self, "String")
+  local typ, ord, id = wrapGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {
@@ -174,9 +154,9 @@ function ENT:EditableSetStringGeneric(name, catg, enter)
 end
 
 function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek)
-  local vas = editableExtractData(vals, key) -- Use provided
-  local vco = editableExtractIcon(vals, ico)
-  local typ, ord, id = editableGetOrder(self, "String")
+  local vas = wrapConvert(vals, key, tostring) -- Use provided
+  local vco = wrapConvert(vals, ico, wrapGetIcon)
+  local typ, ord, id = wrapGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = {

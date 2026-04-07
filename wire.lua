@@ -5,7 +5,7 @@
  * Returns wire specific and related entity picker
  * tC > Created entity set by the duplicator
 ]]
-local function wireLookup(tC)
+local function wrapLookup(tC)
   return function(id, def)
     if(id == nil) then return def
     elseif(id == 0) then return game.GetWorld() end
@@ -18,7 +18,7 @@ end
  * Unpacks the ports information to prepare them for wire library
  * Trims any blank spaces from the configuration and applies defaults
 ]]
-local function wireUnpackPortInfo(tP)
+local function wrapUnpackPortInfo(tP)
   if(not WireLib) then return nil end
   local sN, sT, sD = tP[1], tP[2], tP[3]
   sN = ((sN ~= nil) and string.Trim(tostring(sN)) or nil)
@@ -34,10 +34,10 @@ end
  * tI > Ports information table name/type/description
  * bL > The wire function can process a single port at a time
 ]]
-local function wireSetupPorts(oE, sF, tI, bL)
+local function wrapSetupPorts(oE, sF, tI, bL)
   if(not WireLib) then return oE end
   local iD, tN, tT, tD = 1, {}, {}, {}
-  while(tI[iD]) do local sN, sT, sD = wireUnpackPortInfo(tI[iD])
+  while(tI[iD]) do local sN, sT, sD = wrapUnpackPortInfo(tI[iD])
     if(not sN) then oE:WireError("("..sF..")["..iD.."]: Name missing"); return oE end
     if(not sT) then oE:WireError("("..sF..")["..iD.."]: Type missing"); return oE end
     if(not WireLib.DT[sT]) then oE:WireError("("..sF..")["..iD.."]: Type invalid ["..sT.."]"); return oE end
@@ -198,7 +198,7 @@ function ENT:WirePostEntityPaste(uP, eT, tC, tI)
   if(not eT.EntityMods) then return self end
   if(not eT.EntityMods.WireDupeInfo) then return self end
   local tI = (tI or eT.EntityMods.WireDupeInfo)
-  self:WireApplyDupeInfo(uP, eT, tI, wireLookup(tC))
+  self:WireApplyDupeInfo(uP, eT, tI, wrapLookup(tC))
   return self
 end
 
@@ -234,30 +234,30 @@ end
 
 function ENT:WireCreateInputs(...)
   if(not WireLib) then return self end
-  return wireSetupPorts(self, "CreateSpecialInputs", {...})
+  return wrapSetupPorts(self, "CreateSpecialInputs", {...})
 end
 
 function ENT:WireCreateOutputs(...)
   if(not WireLib) then return self end
-  return wireSetupPorts(self, "CreateSpecialOutputs", {...})
+  return wrapSetupPorts(self, "CreateSpecialOutputs", {...})
 end
 
 function ENT:WireAdjustInputs(...)
   if(not WireLib) then return self end
-  return wireSetupPorts(self, "AdjustSpecialInputs", {...})
+  return wrapSetupPorts(self, "AdjustSpecialInputs", {...})
 end
 
 function ENT:WireAdjustOutputs(...)
   if(not WireLib) then return self end
-  return wireSetupPorts(self, "AdjustSpecialOutputs", {...})
+  return wrapSetupPorts(self, "AdjustSpecialOutputs", {...})
 end
 
 function ENT:WireRetypeInputs(...)
   if(not WireLib) then return self end
-  return wireSetupPorts(self, "RetypeInputs", {...}, true)
+  return wrapSetupPorts(self, "RetypeInputs", {...}, true)
 end
 
 function ENT:WireRetypeOutputs(...)
   if(not WireLib) then return self end
-  return wireSetupPorts(self, "RetypeOutputs", {...}, true)
+  return wrapSetupPorts(self, "RetypeOutputs", {...}, true)
 end
