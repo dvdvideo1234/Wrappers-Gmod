@@ -14,23 +14,27 @@ addon that uses it. Otherwise, I have to update each addon individually.
 3. Dedicated connection, info, configuration and other already implemented methods/routines with type check
 4. Wrapping the [editable SENTs routines with no senseless tables passed down as arguments][ref-edit-pass]. Indexing is automatic
 
-### Ho to use
+### How to [use it][ref-wr-use]
 1. In your `/lua` folder create a folder matching your addon name
   * This is done because you can make your files unique
   * I am going to call this folder `test` for the tutorial’s sake
   * You must name this folder on your own differently
 2. In your addon folder name `test` add a sub-module:
-  * $ `$ git submodule add git@github.com:dvdvideo1234/Wrappers-Gmod.git wrapper`
+  * `$ git submodule add git@github.com:dvdvideo1234/Wrappers-Gmod.git wrapper`
 3. This will populate the wrapper folder with this project
 4. Add the desired wrapper in your project like so:
   * Relative to the `/lua` folder `include("test/wrapper/wire.lua")`
-5. To update the wrappers, you can update the sub-module:
+5. To initialize a wrapper, you can update the sub-module:
   * `$ git submodule update --init --recursive`
   * This will update the hash to point to the latest revision
 6. To keep all the sub-modules updated to the head changes use:
   * `$ git submodule foreach git pull origin main`
   * This will automatically pull and update all changes made
   * This will automatically update the hash in your pointer repo
+
+### When you find error
+when you find error in my code or you notice a commit I've made breaks
+your addon, please report it via the github ticlet issue system.
 
 ### Give me some folder structure examples
 |Name|Wrapper|
@@ -43,6 +47,7 @@ addon that uses it. Otherwise, I have to update each addon individually.
 [![](https://img.youtube.com/vi/G_xcm1OFVV0/2.jpg)](http://www.youtube.com/watch?v=G_xcm1OFVV0 "")
 [![](https://img.youtube.com/vi/G_xcm1OFVV0/3.jpg)](http://www.youtube.com/watch?v=G_xcm1OFVV0 "")
 
+[ref-wr-use]: https://doomwiki.org/wiki/Soul_Cube
 [ref-edit-pass]: https://github.com/dvdvideo1234/LaserSTool/blob/main/lua/autorun/laserlib.lua#L1168
 [ref-wire-novr]: https://github.com/dvdvideo1234/PropCannonTool/blob/master/lua/entities/gmod_propcannon/init.lua#L203
 [ref-wire-conf]: https://github.com/dvdvideo1234/LaserSTool/blob/main/lua/entities/gmod_laser/init.lua#L23
