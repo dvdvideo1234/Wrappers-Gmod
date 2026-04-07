@@ -11,7 +11,7 @@ addon that uses it. Otherwise, I have to update each addon individually.
 ### How is it better
 1. Wire [port direction can be configured using matrixes][ref-wire-conf] instead of long senseless arrays
 2. You can [override numpad using a wire port when connected][ref-wire-novr] `local w = self:WireRead("Width", true)`
-3. Dedicated connection, info, configuration and other already implemented methods/routines with type check
+3. Dedicated [connection, info, configuration and other already implemented methods/routines][ref-wire-meth] with type check
 4. Wrapping the [editable SENTs routines with no senseless tables passed down as arguments][ref-edit-pass]. Indexing is automatic
 
 ### How to [use it][ref-wr-use]
@@ -33,8 +33,9 @@ addon that uses it. Otherwise, I have to update each addon individually.
   * This will automatically update the hash in your pointer repo
 
 ### When you find error
-when you find error in my code or you notice a commit I've made breaks
-your addon, please report it via the github ticlet issue system.
+If you notice a commit in my code that breaks your addon,
+please report it via the `GitHub` ticket issue system.
+Any suggestions are welcome to make the wrapper available.
 
 ### Give me some folder structure examples
 |Name|Wrapper|
@@ -51,6 +52,7 @@ your addon, please report it via the github ticlet issue system.
 [ref-edit-pass]: https://github.com/dvdvideo1234/LaserSTool/blob/main/lua/autorun/laserlib.lua#L1168
 [ref-wire-novr]: https://github.com/dvdvideo1234/PropCannonTool/blob/master/lua/entities/gmod_propcannon/init.lua#L203
 [ref-wire-conf]: https://github.com/dvdvideo1234/LaserSTool/blob/main/lua/entities/gmod_laser/init.lua#L23
+[ref-wire-meth]: https://github.com/dvdvideo1234/LaserSTool/blob/main/lua/autorun/laserlib.lua#L1275
 [ref-subm]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [ref-wrap]: https://en.wikipedia.org/wiki/Wrapper_function
 [ref-s-laser]: https://github.com/dvdvideo1234/LaserSTool/tree/main
