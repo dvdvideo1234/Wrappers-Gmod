@@ -3,8 +3,6 @@ local nvico = "accept"
 local wpkey = "__editableOrderInfo"
 local wpfnc = function(v) return v end
 
-ENT[wpkey] = {N = 0, T = {}}
-
 -- https://wiki.facepunch.com/gmod/Silkicons
 -- https://heyter.github.io/js-famfamfam-search/
 local function wrapGetIcon(icon)
@@ -18,7 +16,9 @@ end
 local function wrapGetOrder(ent, key)
   if(not key) then return end
   if(not IsValid(ent)) then return end
-  local info = ent[wpkey]; if(not info) then return end
+  local etab = ent:GetTable()
+  local info = etab[wpkey]; if(not info) then
+    etab[wpkey] = {N = 0, T = {}}; info = etab[wpkey] end
   local itab = info.T; if(itab[key]) then
     itab[key] = (itab[key] + 1) else itab[key] = 0 end
   info.N = (info.N + 1); return key, info.N, itab[key]
@@ -170,5 +170,6 @@ function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek)
 end
 
 function ENT:EditableRemoveOrder()
-  self[wpkey] = nil; return self
+  local etab = self:GetTable()
+  etab[wpkey] = nil; return self
 end
