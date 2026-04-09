@@ -10,18 +10,30 @@ local function wrapGetIcon(icon)
 end
 
 --[[
- * Retrieves entity order settings for the given key
- * ent > Entity to register as primary laser source
+ * Returns the entity editable key
 ]]
-local function wrapGetOrder(ent, key)
-  if(not key) then return end
+local function wrapGetInfo(ent)
   if(not IsValid(ent)) then return end
   local etab = ent:GetTable()
   local info = etab[wpkey]; if(not info) then
-    etab[wpkey] = {N = 0, T = {}}; info = etab[wpkey] end
-  local itab = info.T; if(itab[key]) then
-    itab[key] = (itab[key] + 1) else itab[key] = 0 end
-  info.N = (info.N + 1); return key, info.N, itab[key]
+    etab[wpkey] = {N = 0, T = {}, E = {}}
+  end; info = etab[wpkey], return info
+end
+
+--[[
+ * Retrieves entity order settings for the given key
+ * ent > Entity to register as primary laser source
+ * https://github.com/Facepunch/garrysmod/lua/includes/extensions/entity.lua
+]]
+local function wrapGetOrder(ent, key)
+  if(not key) then return end
+  local info = wrapGetInfo(ent)
+  if(not info) then return end
+  local itab = info.T -- Red the type
+  local ikey = itab[key] -- Index key
+  itab[key] = (ikey and (ikey + 1) or 0)
+  info.N = (info.N + 1) -- Increment
+  return key, info.N, itab[key], info.E
 end
 
 --[[
@@ -50,123 +62,135 @@ local function wrapConvert(tab, idx, fnc)
   end; return set -- Key-value pairs
 end
 
+function ENT:Editable(trn, ron)
+  local info = wrapGetInfo(ent)
+  if(not info) then return self end
+  local ro = ((ron ~= nil) and tobool(ron) or false)
+  local na = ((trn ~= nil) and tostring(trn or "") or nil)
+  table.Merge(info.E, {title = na, readonly = ro}, true)
+  return self
+end
+
 function ENT:EditableSetVector(name, catg)
-  local typ, ord, id = wrapGetOrder(self, "Vector")
+  local typ, ord, id, ed = wrapGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
       category = catg,
       order    = ord,
       type     = typ
-  }}); return self
+  }, ed, true}); return self
 end
 
 function ENT:EditableSetVectorColor(name, catg)
-  local typ, ord, id = wrapGetOrder(self, "Vector")
+  local typ, ord, id, ed = wrapGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
       category = catg,
       order    = ord,
       type     = typ.."Color"
-    }}); return self
+    }, ed, true}); return self
 end
 
 function ENT:EditableSetBool(name, catg)
-  local typ, ord, id = wrapGetOrder(self, "Bool")
+  local typ, ord, id, ed = wrapGetOrder(self, "Bool")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
       category = catg,
       order    = ord,
       type     = typ
-  }}); return self
+  }, ed, true}); return self
 end
 
 function ENT:EditableSetFloat(name, catg, min, max)
-  local typ, ord, id = wrapGetOrder(self, "Float")
+  local typ, ord, id, ed = wrapGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
       category = catg,
       order    = ord,
       type     = typ,
       min      = (tonumber(min) or -100),
       max      = (tonumber(max) or  100)
-  }}); return self
+  }, ed, true}); return self
 end
 
-function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek)
+function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek, def)
   local vas = wrapConvert(vals, key, tonumber) -- Use provided
   local vco = wrapConvert(vals, ico, wrapGetIcon)
-  local typ, ord, id = wrapGetOrder(self, "Float")
+  local typ, ord, id, ed = wrapGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
+      text     = def,
       category = catg,
       order    = ord,
       type     = "Combo",
       select   = sek,
       icons    = vco,
       values   = vas
-  }}); return self
+  }, ed, true}); return self
 end
 
 function ENT:EditableSetInt(name, catg, min, max)
-  local typ, ord, id = wrapGetOrder(self, "Int")
+  local typ, ord, id, ed = wrapGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
       category = catg,
       order    = ord,
       type     = typ,
       min      = (tonumber(min) or -100),
       max      = (tonumber(max) or  100)
-  }}); return self
+  }, ed, true}); return self
 end
 
-function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek)
+function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek, def)
   local vas = wrapConvert(vals, key, tonumber) -- Use provided
   local vco = wrapConvert(vals, ico, wrapGetIcon)
-  local typ, ord, id = wrapGetOrder(self, "Int")
+  local typ, ord, id, ed = wrapGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
+      text     = def,
       category = catg,
       order    = ord,
       type     = "Combo",
       select   = sek,
       icons    = vco,
       values   = vas
-  }}); return self
+  }, ed, true}); return self
 end
 
 function ENT:EditableSetStringGeneric(name, catg, enter)
-  local typ, ord, id = wrapGetOrder(self, "String")
+  local typ, ord, id, ed = wrapGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
       category     = catg,
       order        = ord,
       waitforenter = tobool(enter),
       type         = "Generic"
-  }}); return self
+  }, ed, true}); return self
 end
 
-function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek)
+function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek, def)
   local vas = wrapConvert(vals, key, tostring) -- Use provided
   local vco = wrapConvert(vals, ico, wrapGetIcon)
-  local typ, ord, id = wrapGetOrder(self, "String")
+  local typ, ord, id, ed = wrapGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
-    Edit = {
+    Edit = table.Merge({
+      text     = def,
       category = catg,
       order    = ord,
       type     = "Combo",
       select   = sek,
       icons    = vco,
       values   = vas
-  }}); return self
+  }, ed, true}); return self
 end
 
 function ENT:EditableRemoveOrder()
