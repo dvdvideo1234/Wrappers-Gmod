@@ -124,10 +124,10 @@ function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek, def)
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = table.Merge({
-      text     = def,
       category = catg,
       order    = ord,
       type     = "Combo",
+      text     = def,
       select   = sek,
       icons    = vco,
       values   = vas
@@ -154,10 +154,10 @@ function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek, def)
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = table.Merge({
-      text     = def,
       category = catg,
       order    = ord,
       type     = "Combo",
+      text     = def,
       select   = sek,
       icons    = vco,
       values   = vas
@@ -183,10 +183,10 @@ function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek, def)
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
     Edit = table.Merge({
-      text     = def,
       category = catg,
       order    = ord,
       type     = "Combo",
+      text     = def,
       select   = sek,
       icons    = vco,
       values   = vas
