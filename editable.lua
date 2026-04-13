@@ -19,7 +19,7 @@ local function wrapGetInfo(ent)
   local etab = ent:GetTable()
   local info = etab[wpkey]; if(not info) then
     etab[wpkey] = {N = 0, T = {}, E = {}}
-  end; info = etab[wpkey], return info
+  end; info = etab[wpkey]; return info
 end
 
 --[[
@@ -105,7 +105,7 @@ function ENT:EditableSetVector(name, catg)
       category = catg,
       order    = ord,
       type     = typ
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
@@ -120,7 +120,7 @@ function ENT:EditableSetVectorColor(name, catg)
       category = catg,
       order    = ord,
       type     = typ.."Color"
-    }, ed, true}); return self
+    }, ed, true)}); return self
 end
 
 --[[
@@ -135,7 +135,7 @@ function ENT:EditableSetBool(name, catg)
       category = catg,
       order    = ord,
       type     = typ
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
@@ -155,7 +155,7 @@ function ENT:EditableSetFloat(name, catg, min, max)
       type     = typ,
       min      = (tonumber(min) or -100),
       max      = (tonumber(max) or  100)
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
@@ -178,7 +178,7 @@ function ENT:EditableSetFloatCombo(name, catg, vals, key, ico)
       type     = "Combo",
       icons    = vco,
       values   = vas
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
@@ -198,7 +198,7 @@ function ENT:EditableSetInt(name, catg, min, max)
       type     = typ,
       min      = (tonumber(min) or -100),
       max      = (tonumber(max) or  100)
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
@@ -221,7 +221,7 @@ function ENT:EditableSetIntCombo(name, catg, vals, key, ico)
       type     = "Combo",
       icons    = vco,
       values   = vas
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
@@ -239,7 +239,7 @@ function ENT:EditableSetStringGeneric(name, catg, enter)
       order        = ord,
       waitforenter = tobool(enter),
       type         = "Generic"
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
@@ -262,7 +262,7 @@ function ENT:EditableSetStringCombo(name, catg, vals, key, ico)
       type     = "Combo",
       icons    = vco,
       values   = vas
-  }, ed, true}); return self
+  }, ed, true)}); return self
 end
 
 --[[
