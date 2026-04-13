@@ -1,5 +1,7 @@
 local fmico = "icon16/%s.png"
 local nvico = "accept"
+local dfkey = "main"
+local dfico = "icon"
 local wpkey = "__editableOrderInfo"
 local wpfnc = function(v) return v end
 
@@ -62,7 +64,14 @@ local function wrapConvert(tab, idx, fnc)
   end; return set -- Key-value pairs
 end
 
-function ENT:Editable(trn, ron)
+-- https://wiki.facepunch.com/gmod/Editable_Entities
+--[[
+ * trn > Display a translated string instead of editable name
+ * ron > Enable or disable readonly. Cannot edit when enabled
+ * def > Default text value when nothing in combo selected
+ * sek > The key being automatically selected on creation
+]]
+function ENT:EditableSetName(trn, ron)
   local info = wrapGetInfo(ent)
   if(not info) then return self end
   local ro = ((ron ~= nil) and tobool(ron) or false)
@@ -71,6 +80,23 @@ function ENT:Editable(trn, ron)
   return self
 end
 
+--[[
+ * def > Default text value when nothing in combo selected
+ * sek > The key being automatically selected on creation
+]]
+function ENT:EditableSetCombo(def, sek)
+  local info = wrapGetInfo(ent)
+  if(not info) then return self end
+  local se = ((sek ~= nil) and sek or nil)
+  local df = ((def ~= nil) and tostring(def or "") or nil)
+  table.Merge(info.E, {select = se, text = df}, true)
+  return self
+end
+
+--[[
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+]]
 function ENT:EditableSetVector(name, catg)
   local typ, ord, id, ed = wrapGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
@@ -82,6 +108,10 @@ function ENT:EditableSetVector(name, catg)
   }, ed, true}); return self
 end
 
+--[[
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+]]
 function ENT:EditableSetVectorColor(name, catg)
   local typ, ord, id, ed = wrapGetOrder(self, "Vector")
   self:NetworkVar(typ, id, name, {
@@ -93,6 +123,10 @@ function ENT:EditableSetVectorColor(name, catg)
     }, ed, true}); return self
 end
 
+--[[
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+]]
 function ENT:EditableSetBool(name, catg)
   local typ, ord, id, ed = wrapGetOrder(self, "Bool")
   self:NetworkVar(typ, id, name, {
@@ -104,6 +138,13 @@ function ENT:EditableSetBool(name, catg)
   }, ed, true}); return self
 end
 
+--[[
+ * Creates floating point value selection slider
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+ * min  > Minimum value available for the number selected
+ * max  > Maximum value available for the number selected
+]]
 function ENT:EditableSetFloat(name, catg, min, max)
   local typ, ord, id, ed = wrapGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
@@ -117,9 +158,17 @@ function ENT:EditableSetFloat(name, catg, min, max)
   }, ed, true}); return self
 end
 
-function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek, def)
-  local vas = wrapConvert(vals, key, tonumber) -- Use provided
-  local vco = wrapConvert(vals, ico, wrapGetIcon)
+--[[
+ * Creates combo box with integer values
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+ * vals > Value selection set returned by `list.Get`
+ * key  > The key used to extract the selection value
+ * ico  > The key used to extract the selection icon
+]]
+function ENT:EditableSetFloatCombo(name, catg, vals, key, ico)
+  local vas = wrapConvert(vals, (key or dfkey), tonumber) -- Use provided
+  local vco = wrapConvert(vals, (ico or dfico), wrapGetIcon)
   local typ, ord, id, ed = wrapGetOrder(self, "Float")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
@@ -127,13 +176,18 @@ function ENT:EditableSetFloatCombo(name, catg, vals, key, ico, sek, def)
       category = catg,
       order    = ord,
       type     = "Combo",
-      text     = def,
-      select   = sek,
       icons    = vco,
       values   = vas
   }, ed, true}); return self
 end
 
+--[[
+ * Creates integer value selection slider
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+ * min  > Minimum value available for the number selected
+ * max  > Maximum value available for the number selected
+]]
 function ENT:EditableSetInt(name, catg, min, max)
   local typ, ord, id, ed = wrapGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
@@ -147,9 +201,17 @@ function ENT:EditableSetInt(name, catg, min, max)
   }, ed, true}); return self
 end
 
-function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek, def)
-  local vas = wrapConvert(vals, key, tonumber) -- Use provided
-  local vco = wrapConvert(vals, ico, wrapGetIcon)
+--[[
+ * Creates combo box with integers
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+ * vals > Value selection set returned by `list.Get`
+ * key  > The key used to extract the selection value
+ * ico  > The key used to extract the selection icon
+]]
+function ENT:EditableSetIntCombo(name, catg, vals, key, ico)
+  local vas = wrapConvert(vals, (key or dfkey), tonumber) -- Use provided
+  local vco = wrapConvert(vals, (ico or dfico), wrapGetIcon)
   local typ, ord, id, ed = wrapGetOrder(self, "Int")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
@@ -157,13 +219,17 @@ function ENT:EditableSetIntCombo(name, catg, vals, key, ico, sek, def)
       category = catg,
       order    = ord,
       type     = "Combo",
-      text     = def,
-      select   = sek,
       icons    = vco,
       values   = vas
   }, ed, true}); return self
 end
 
+--[[
+ * Create general text entry
+ * name  > The data table member name `Amount` for Get/Set
+ * catg  > Internal data table member categody `General`
+ * enter > Should the text field wait for enter to be pressed
+]]
 function ENT:EditableSetStringGeneric(name, catg, enter)
   local typ, ord, id, ed = wrapGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
@@ -176,9 +242,17 @@ function ENT:EditableSetStringGeneric(name, catg, enter)
   }, ed, true}); return self
 end
 
-function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek, def)
-  local vas = wrapConvert(vals, key, tostring) -- Use provided
-  local vco = wrapConvert(vals, ico, wrapGetIcon)
+--[[
+ * Creates combo box with strings
+ * name > The data table member name `Amount` for Get/Set
+ * catg > Internal data table member categody `General`
+ * vals > Value selection set returned by `list.Get`
+ * key  > The key used to extract the selection value
+ * ico  > The key used to extract the selection icon
+]]
+function ENT:EditableSetStringCombo(name, catg, vals, key, ico)
+  local vas = wrapConvert(vals, (key or dfkey), tostring) -- Use provided
+  local vco = wrapConvert(vals, (ico or dfico), wrapGetIcon)
   local typ, ord, id, ed = wrapGetOrder(self, "String")
   self:NetworkVar(typ, id, name, {
     KeyName = name:lower(),
@@ -186,13 +260,14 @@ function ENT:EditableSetStringCombo(name, catg, vals, key, ico, sek, def)
       category = catg,
       order    = ord,
       type     = "Combo",
-      text     = def,
-      select   = sek,
       icons    = vco,
       values   = vas
   }, ed, true}); return self
 end
 
+--[[
+ * Removes the dynamic configuration table to save space
+]]
 function ENT:EditableRemoveOrder()
   local etab = self:GetTable()
   etab[wpkey] = nil; return self
