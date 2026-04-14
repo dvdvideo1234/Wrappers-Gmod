@@ -67,7 +67,7 @@ end
 -- https://wiki.facepunch.com/gmod/Editable_Entities
 --[[
  * trn > Display a translated string instead of editable name
- * ron > Enable or disable readonly. Cannot edit when enabled
+ * ron > Enable or disable read-only. Cannot edit when enabled
  * def > Default text value when nothing in combo selected
  * sek > The key being automatically selected on creation
 ]]
@@ -95,7 +95,7 @@ end
 
 --[[
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
 ]]
 function ENT:EditableSetVector(name, catg)
   local typ, ord, id, ed = wrapGetOrder(self, "Vector")
@@ -110,7 +110,7 @@ end
 
 --[[
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
 ]]
 function ENT:EditableSetVectorColor(name, catg)
   local typ, ord, id, ed = wrapGetOrder(self, "Vector")
@@ -125,7 +125,7 @@ end
 
 --[[
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
 ]]
 function ENT:EditableSetBool(name, catg)
   local typ, ord, id, ed = wrapGetOrder(self, "Bool")
@@ -141,7 +141,7 @@ end
 --[[
  * Creates floating point value selection slider
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
  * min  > Minimum value available for the number selected
  * max  > Maximum value available for the number selected
 ]]
@@ -153,15 +153,15 @@ function ENT:EditableSetFloat(name, catg, min, max)
       category = catg,
       order    = ord,
       type     = typ,
-      min      = (tonumber(min) or -100),
-      max      = (tonumber(max) or  100)
+      min      = min,
+      max      = max
   }, ed, true)}); return self
 end
 
 --[[
  * Creates combo box with integer values
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
  * vals > Value selection set returned by `list.Get`
  * key  > The key used to extract the selection value
  * ico  > The key used to extract the selection icon
@@ -184,7 +184,7 @@ end
 --[[
  * Creates integer value selection slider
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
  * min  > Minimum value available for the number selected
  * max  > Maximum value available for the number selected
 ]]
@@ -196,15 +196,15 @@ function ENT:EditableSetInt(name, catg, min, max)
       category = catg,
       order    = ord,
       type     = typ,
-      min      = (tonumber(min) or -100),
-      max      = (tonumber(max) or  100)
+      min      = min,
+      max      = max
   }, ed, true)}); return self
 end
 
 --[[
  * Creates combo box with integers
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
  * vals > Value selection set returned by `list.Get`
  * key  > The key used to extract the selection value
  * ico  > The key used to extract the selection icon
@@ -227,7 +227,7 @@ end
 --[[
  * Create general text entry
  * name  > The data table member name `Amount` for Get/Set
- * catg  > Internal data table member categody `General`
+ * catg  > Internal data table member category `General`
  * enter > Should the text field wait for enter to be pressed
 ]]
 function ENT:EditableSetStringGeneric(name, catg, enter)
@@ -245,7 +245,7 @@ end
 --[[
  * Creates combo box with strings
  * name > The data table member name `Amount` for Get/Set
- * catg > Internal data table member categody `General`
+ * catg > Internal data table member category `General`
  * vals > Value selection set returned by `list.Get`
  * key  > The key used to extract the selection value
  * ico  > The key used to extract the selection icon
