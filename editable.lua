@@ -5,8 +5,10 @@ local dfico = "icon"
 local wpkey = "__editableOrderInfo"
 local wpfnc = function(v) return v end
 
+-- https://wiki.facepunch.com/gmod/Editable_Entities
 -- https://wiki.facepunch.com/gmod/Silkicons
 -- https://heyter.github.io/js-famfamfam-search/
+
 local function wrapGetIcon(icon)
   return fmico:format(tostring(icon or nvico))
 end
@@ -64,20 +66,24 @@ local function wrapConvert(tab, idx, fnc)
   end; return set -- Key-value pairs
 end
 
--- https://wiki.facepunch.com/gmod/Editable_Entities
 --[[
  * trn > Display a translated string instead of editable name
- * ron > Enable or disable read-only. Cannot edit when enabled
- * def > Default text value when nothing in combo selected
- * sek > The key being automatically selected on creation
 ]]
-function ENT:EditableSetName(trn, ron)
-  local info = wrapGetInfo(ent)
+function ENT:EditableSetName(trn)
+  local info = wrapGetInfo(self)
   if(not info) then return self end
-  local ro = ((ron ~= nil) and tobool(ron) or false)
   local na = ((trn ~= nil) and tostring(trn or "") or nil)
-  table.Merge(info.E, {title = na, readonly = ro}, true)
-  return self
+  info.E.title = na; return self
+end
+
+--[[
+ * ron > Enable or disable read-only. Cannot edit when enabled
+]]
+function ENT:EditableSetRead(ron)
+  local info = wrapGetInfo(self)
+  if(not info) then return self end
+  local ro = ((ron ~= nil) and tobool(ron) or nil)
+  info.E.readonly = ro; return self
 end
 
 --[[
@@ -89,7 +95,7 @@ function ENT:EditableSetCombo(def, sek)
   if(not info) then return self end
   local se = ((sek ~= nil) and sek or nil)
   local df = ((def ~= nil) and tostring(def or "") or nil)
-  table.Merge(info.E, {select = se, text = df}, true)
+  info.E.text, info.E.select = df, se
   return self
 end
 
