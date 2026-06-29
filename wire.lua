@@ -90,28 +90,8 @@ function ENT:WireError(sM, ...)
 end
 
 --[[
- * Used to check if a given input exists
- * sN > Port name must be string
-]]
-function ENT:WireIsInput(sN)
-  if(not WireLib) then return false end
-  if(sN == nil) then self:WireError("Name missing", sN); return false end
-  local tP, sP = self["Inputs"], tostring(sN); tP = (tP and tP[sP] or nil)
-  return (tP ~= nil)
-end
-
---[[
- * Used to check if a given input exists
- * sN > Port name must be string
-]]
-function ENT:WireIsOutput(sN)
-  if(not WireLib) then return false end
-  if(sN == nil) then self:WireError("Name missing", sN); return false end
-  local tP, sP = self["Outputs"], tostring(sN); tP = (tP and tP[sP] or nil)
-  return (tP ~= nil)
-end
-
---[[
+ * Used to check if a given input exists in this entity
+ * Should not remove the wire entity when the port is missing
  * Used to index a wire port and return its content
  * sT > Port type `Inputs` or `Outputs`
  * sN > Port name must be string
@@ -123,8 +103,29 @@ function ENT:WireIndex(sT, sN)
   if(not widx[sT]) then self:WireError("Type invalid", sT, sN); return nil end
   if(sN == nil) then self:WireError("Name missing", sT, sN); return nil end
   local tP, sP = self[sT], tostring(sN); tP = (tP and tP[sP] or nil)
-  if(tP == nil) then self:WireError("Name invalid", sT, sN); return nil end
   return tP, sP -- Returns the dedicated indexed wire I/O port and name
+end
+
+--[[
+ * Used to check if a given input exists in this entity
+ * Should not remove the wire entity when the port is missing
+ * sN > Port name must be strings
+]]
+function ENT:WireIsInput(sN)
+  if(not WireLib) then return false end
+  local tP, sP = self:WireIndex("Inputs", sN)
+  return (tP ~= nil)
+end
+
+--[[
+ * Used to check if a given input exists in this entity
+ * Should not remove the wire entity when the port is missing
+ * sN > Port name must be strings
+]]
+function ENT:WireIsOutput(sN)
+  if(not WireLib) then return false end
+  local tP, sP = self:WireIndex("Outputs", sN)
+  return (tP ~= nil)
 end
 
 --[[
@@ -149,13 +150,13 @@ end
 
 --[[
  * Procedure. Removes wire abilities from an entity
- * bU > Set to true if you want to remove ent from the list and
+ * bF > Set to true if you want to remove ent from the list and
             if you want to call `WireLib._RemoveWire(EID)` manually.
         Set to false so it doesn't count as a wire able entity anymore
 ]]
-function ENT:WireRemove(bU)
+function ENT:WireRemove(bF)
   if(not WireLib) then return self end
-  WireLib.Remove(self, bU); return self
+  WireLib.Remove(self, bF); return self
 end
 
 --[[
