@@ -250,7 +250,9 @@ function ENT:WireWrite(sN, vD, bT)
       self:WireError("Type missing", sN, vD, bT); return self end
     local tD = WireLib.DT[sT]; if(tD == nil) then -- No default value for the type
       self:WireError("Type undefined", sN, vD, bT, sT); return self end
-    local sD, sZ = type(vD), type(tD.Zero); if(sD ~= sZ) then -- Compare types
+    local bS, vZ = pcall(tD.Zero); if(not bS) then -- Zero value function
+      self:WireError("Zero mismatch", sN, vD, bT, sT, vZ); return self end
+    local sD, sZ = type(vD), type(vZ); if(sD ~= sZ) then -- Compare types
       self:WireError("Type mismatch", sN, vD, bT, sT, sD, sZ); return self end
   end; WireLib.TriggerOutput(self, sP, vD); return self
 end
