@@ -34,9 +34,9 @@ end
 local function wrapUnpackPortInfo(tP)
   if(not WireLib) then return nil end
   local sN, sT, sD = tP[1], tP[2], tP[3]
-  sN = ((sN ~= nil) and string.Trim(tostring(sN)) or nil)
-  sT = ((sT ~= nil) and string.Trim(tostring(sT)) or "NORMAL")
-  sD = ((sD ~= nil) and string.Trim(tostring(sD)) or nil)
+  sN = ((sN ~= nil) and tostring(sN):Trim() or nil)
+  sT = ((sT ~= nil) and tostring(sT):Trim() or "NORMAL")
+  sD = ((sD ~= nil) and tostring(sD):Trim() or nil)
   return sN, sT, sD
 end
 
@@ -44,17 +44,18 @@ end
  * Setups the ports information and calls the wire library
  * oE > Entity which white ports are being configured
  * sF > Function name of the wire library being called
- * tI > Ports information table name/type/description
  * bL > The wire function can process a single port at a time
+ * ...> Ports information variable arguments name/type/description
 ]]
-local function wrapSetupPorts(oE, sF, tI, bL)
+local function wrapSetupPorts(oE, sF, bL, ...)
   if(not WireLib) then return oE end
-  local iD, tN, tT, tD = 1, {}, {}, {}
-  while(tI[iD]) do local sN, sT, sD = wrapUnpackPortInfo(tI[iD])
+  local tN, tT, tD, nD = {}, {}, {}, select("#", ...)
+  for iD = 1, nD do local vD = select(iD, ...) -- Retrieve current port info
+    local sN, sT, sD = wrapUnpackPortInfo(vD) -- Unpack config port parameters
     if(not sN) then oE:WireError("Name missing", sF, iD, bL); return oE end
     if(not sT) then oE:WireError("Type missing", sF, iD, bL); return oE end
     if(not WireLib.DT[sT]) then oE:WireError("Type invalid", sF, iD, sT, bL); return oE end
-    tN[iD], tT[iD], tD[iD] = sN, sT, sD; iD = (iD + 1) -- Call the provider
+    tN[iD], tT[iD], tD[iD] = sN, sT, sD; -- Call the provider
   end -- All the ports are converted from row description to column array
   if(bL) then -- Wire function can process a single port on a single call
     for iD = 1, #tN do -- Port name and type is mandatory
@@ -112,7 +113,7 @@ end
 
 --[[
  * Used to index a wire port and return its content
- * sT > Port key `Input` or `Output`
+ * sT > Port type `Inputs` or `Outputs`
  * sN > Port name must be string
 ]]
 local widx = {["Inputs"] = true, ["Outputs"] = true}
@@ -245,41 +246,41 @@ function ENT:WireWrite(sN, vD, bT)
   if(not WireLib) then return self end; local tP, sP = self:WireIndex("Outputs", sN)
   if(tP == nil) then self:WireError("Output missing", sN, vD, bT); return self end
   if(bT) then -- Type check is enabled then compare them. Check various conditions
-    local sD = tP.Type; if(sD == nil) then -- Type is undefined. Error at once
+    local sT = tP.Type; if(sT == nil) then -- Type is undefined. Error at once
       self:WireError("Type missing", sN, vD, bT); return self end
-    local tD = WireLib.DT[sD]; if(tD == nil) then -- No default value for the type
-      self:WireError("Type undefined", sN, vD, bT, sD); return self end
-    local sT, sZ = type(vD), type(tD.Zero); if(sT ~= sZ) then -- Compare types
-      self:WireError("Type mismatch", sN, vD, bT, sD, sT, sZ); return self end
+    local tD = WireLib.DT[sT]; if(tD == nil) then -- No default value for the type
+      self:WireError("Type undefined", sN, vD, bT, sT); return self end
+    local sD, sZ = type(vD), type(tD.Zero); if(sD ~= sZ) then -- Compare types
+      self:WireError("Type mismatch", sN, vD, bT, sT, sD, sZ); return self end
   end; WireLib.TriggerOutput(self, sP, vD); return self
 end
 
 function ENT:WireCreateInputs(...)
   if(not WireLib) then return self end
-  return wrapSetupPorts(self, "CreateSpecialInputs", {...})
+  return wrapSetupPorts(self, "CreateSpecialInputs", false, ...)
 end
 
 function ENT:WireCreateOutputs(...)
   if(not WireLib) then return self end
-  return wrapSetupPorts(self, "CreateSpecialOutputs", {...})
+  return wrapSetupPorts(self, "CreateSpecialOutputs", false, ...)
 end
 
 function ENT:WireAdjustInputs(...)
   if(not WireLib) then return self end
-  return wrapSetupPorts(self, "AdjustSpecialInputs", {...})
+  return wrapSetupPorts(self, "AdjustSpecialInputs", false, ...)
 end
 
 function ENT:WireAdjustOutputs(...)
   if(not WireLib) then return self end
-  return wrapSetupPorts(self, "AdjustSpecialOutputs", {...})
+  return wrapSetupPorts(self, "AdjustSpecialOutputs", false, ...)
 end
 
 function ENT:WireRetypeInputs(...)
   if(not WireLib) then return self end
-  return wrapSetupPorts(self, "RetypeInputs", {...}, true)
+  return wrapSetupPorts(self, "RetypeInputs", true, ...)
 end
 
 function ENT:WireRetypeOutputs(...)
   if(not WireLib) then return self end
-  return wrapSetupPorts(self, "RetypeOutputs", {...}, true)
+  return wrapSetupPorts(self, "RetypeOutputs", true, ...)
 end
